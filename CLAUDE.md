@@ -1,3 +1,49 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project status
+
+This repo is the official Laravel + Livewire starter kit (`laravel/livewire-starter-kit`) with WorkOS AuthKit auth and a multi-tenant Teams feature scaffolded in. Despite the "HabitTracker" name, no habit-tracking domain code exists yet — `app/` currently only contains the starter kit's auth/teams scaffolding.
+
+## Commands
+
+```bash
+composer setup       # first-time install: composer install, .env, key:generate, migrate, npm install/build
+composer dev          # run php artisan serve + queue:listen + vite dev, concurrently (primary local dev command)
+npm run dev           # vite dev server only
+npm run build         # production asset build
+
+php artisan test --compact                       # run full test suite
+php artisan test --compact --filter=testName      # run a single test
+vendor/bin/pint --dirty --format agent            # format only changed PHP files (required after any PHP edit)
+composer types:check  # phpstan analyse (level 7, see phpstan.neon)
+composer test         # config:clear + lint:check + types:check + full test suite (what CI runs)
+```
+
+Tests use Pest (`tests/Feature`, RefreshDatabase is applied globally in `tests/Pest.php`). There is no `tests/Unit` Pest config — only `Feature` is auto-extended with `TestCase`.
+
+## Architecture
+
+**Auth is WorkOS AuthKit, not Laravel's built-in auth.** `routes/auth.php` uses `Laravel\WorkOS\Http\Requests\AuthKit*Request` classes for login/callback/logout, and `ValidateSessionWithWorkOS` middleware guards authenticated routes. `User` has no password field managed here; `workos_id` is the identity link and is hidden via the `#[Hidden]` attribute (Laravel 13's attribute-based `$fillable`/`$hidden` instead of array properties — see `#[Fillable]`/`#[Hidden]` on `User`/`Team`).
+
+**Every authenticated route is scoped to a team.** Routes under `routes/web.php` use a `{current_team}` route prefix; `EnsureTeamMembership` middleware (optionally with a `minimumRole` parameter, e.g. `EnsureTeamMembership::class.':admin'`) resolves the team from `current_team`/`team` route params, authorizes membership, and switches the user's active team. `SetTeamUrlDefaults` (registered globally in `bootstrap/app.php`) injects the current team's slug into `current_team`/`team` URL defaults so `route()` calls don't need to pass them explicitly. Team-related domain logic (memberships, roles, permissions, slugs) lives in `App\Concerns\HasTeams` (on `User`) and `App\Concerns\GeneratesUniqueTeamSlugs` (on `Team`), not in controllers.
+
+**Roles/permissions are enum-driven, not a DB permissions table.** `App\Enums\TeamRole` (Owner/Admin/Member) defines a permission set and hierarchy level per role; `App\Enums\TeamPermission` is the permission catalog. `User::toTeamPermissions()` / `HasTeams::hasTeamPermission()` are how views/components check authorization (in addition to `App\Policies\TeamPolicy` for standard Gate/Policy checks).
+
+**Livewire v4 single-file components (SFC), not classes or Volt.** Components are `new class extends Component { ... }; ?>` blocks followed by Blade markup in one `.blade.php` file, using `Livewire\Component` directly. File names are prefixed with the ⚡ emoji by convention (Livewire 4's `make:livewire` default) — this is cosmetic only, purely to make components stand out in the file tree; it carries no functional meaning.
+- `resources/views/pages/**` → the `pages::` namespace, for full-page components routed via `Route::livewire(...)`.
+- `resources/views/layouts/**` → the `layouts::` namespace (`component_layout` config).
+- `resources/views/components/**` → plain Blade components/includes (no ⚡ prefix, not routed).
+- Create new ones with `php artisan make:livewire pages::teams.something` (page) or `php artisan make:livewire something` (component) rather than hand-rolling the file layout.
+- In tests, reference components by their namespaced string name: `Livewire::test('pages::teams.index')`.
+
+**UI is Flux UI v2** (`<flux:*>` components) with Tailwind v4. Prefer existing `<flux:*>` components and existing page patterns (see `resources/views/pages/teams/⚡edit.blade.php` for a full CRUD-with-modals example) over introducing new UI primitives. Interactive rows/buttons used in Pest browser/dusk-style assertions carry `data-test="..."` attributes — keep that convention when adding testable UI.
+
+**Data/value objects**: `App\Data\TeamPermissions` and `App\Data\UserTeam` are plain readonly-style DTOs returned from model methods for passing structured data into views/components — follow this pattern rather than passing raw arrays for anything with a fixed shape.
+
+---
+
 <laravel-boost-guidelines>
 === foundation rules ===
 
