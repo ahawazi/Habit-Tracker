@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Actions\Habits\EnsureDefaultHabits;
 use App\Concerns\GeneratesUniqueTeamSlugs;
 use App\Enums\TeamRole;
 use Database\Factories\TeamFactory;
@@ -25,6 +26,8 @@ use Illuminate\Support\Carbon;
  * @property-read Collection<int, TeamInvitation> $invitations
  * @property-read Collection<int, Membership> $memberships
  * @property-read Collection<int, User> $members
+ * @property-read Collection<int, Habit> $habits
+ * @property-read Collection<int, DailyCheckIn> $dailyCheckIns
  */
 #[Fillable(['name', 'slug', 'is_personal'])]
 class Team extends Model
@@ -49,6 +52,13 @@ class Team extends Model
             if ($team->isDirty('name')) {
                 $team->slug = static::generateUniqueTeamSlug($team->name, $team->id);
             }
+        });
+
+        // Every team tracks the three default habits. Hooking the idempotent action
+        // here covers teams created through the CreateTeam action, factories, and any
+        // future code path, so habits never have to be inserted by hand.
+        static::created(function (Team $team) {
+            app(EnsureDefaultHabits::class)->handle($team);
         });
     }
 
@@ -93,6 +103,26 @@ class Team extends Model
     public function invitations(): HasMany
     {
         return $this->hasMany(TeamInvitation::class);
+    }
+
+    /**
+     * Get the habits tracked by this team.
+     *
+     * @return HasMany<Habit, $this>
+     */
+    public function habits(): HasMany
+    {
+        return $this->hasMany(Habit::class);
+    }
+
+    /**
+     * Get every member's daily check-ins for this team.
+     *
+     * @return HasMany<DailyCheckIn, $this>
+     */
+    public function dailyCheckIns(): HasMany
+    {
+        return $this->hasMany(DailyCheckIn::class);
     }
 
     /**

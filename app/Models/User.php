@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -29,6 +30,7 @@ use Illuminate\Support\Str;
  * @property-read Collection<int, Team> $ownedTeams
  * @property-read Collection<int, Membership> $teamMemberships
  * @property-read Collection<int, Team> $teams
+ * @property-read Collection<int, DailyCheckIn> $dailyCheckIns
  */
 #[Fillable(['name', 'email', 'workos_id', 'avatar', 'current_team_id'])]
 #[Hidden(['workos_id', 'remember_token'])]
@@ -36,6 +38,19 @@ class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasTeams, Notifiable;
+
+    /**
+     * Get the user's personal daily check-ins across all teams.
+     *
+     * Always narrow this by team before reading: check-ins are personal to a user
+     * *within* a team.
+     *
+     * @return HasMany<DailyCheckIn, $this>
+     */
+    public function dailyCheckIns(): HasMany
+    {
+        return $this->hasMany(DailyCheckIn::class);
+    }
 
     /**
      * Get the user's initials.
