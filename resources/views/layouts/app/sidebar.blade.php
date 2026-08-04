@@ -13,9 +13,17 @@
             <livewire:team-switcher />
 
             <flux:sidebar.nav>
-                <flux:sidebar.group :heading="__('Platform')" class="grid">
+                <flux:sidebar.group :heading="__('habits.nav.group')" class="grid">
                     <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
-                        {{ __('Dashboard') }}
+                        {{ __('habits.nav.dashboard') }}
+                    </flux:sidebar.item>
+
+                    <flux:sidebar.item icon="calendar-days" :href="route('habits.calendar')" :current="request()->routeIs('habits.calendar')" wire:navigate>
+                        {{ __('habits.nav.calendar') }}
+                    </flux:sidebar.item>
+
+                    <flux:sidebar.item icon="squares-2x2" :href="route('habits.year')" :current="request()->routeIs('habits.year')" wire:navigate>
+                        {{ __('habits.nav.year_overview') }}
                     </flux:sidebar.item>
                 </flux:sidebar.group>
             </flux:sidebar.nav>
