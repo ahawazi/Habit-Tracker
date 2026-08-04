@@ -10,6 +10,16 @@ Route::prefix('{current_team}')
     ->middleware(['auth', ValidateSessionWithWorkOS::class, EnsureTeamMembership::class])
     ->group(function () {
         Route::view('dashboard', 'dashboard')->name('dashboard');
+
+        Route::livewire('habits/check-in/{date?}', 'pages::habits.check-in')
+            ->name('habits.check-in')
+            ->where('date', '\d{4}-\d{2}-\d{2}');
+
+        Route::livewire('habits/calendar/{month?}', 'pages::habits.calendar')
+            ->name('habits.calendar')
+            ->where('month', '\d{4}-\d{2}');
+
+        Route::livewire('habits/year', 'pages::habits.year')->name('habits.year');
     });
 
 Route::middleware(['auth'])->group(function () {
