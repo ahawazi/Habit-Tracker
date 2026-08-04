@@ -24,6 +24,15 @@
             </div>
         </div>
         <flux:menu.separator />
+
+        <div class="px-2 py-1.5">
+            <flux:text class="mb-1.5 block text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                {{ __('Appearance') }}
+            </flux:text>
+            <x-appearance-switcher :labels="false" class="w-full" />
+        </div>
+
+        <flux:menu.separator />
         <flux:menu.radio.group>
             <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>
                 {{ __('Settings') }}

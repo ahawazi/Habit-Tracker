@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         @include('partials.head')
     </head>
-    <body class="min-h-screen bg-white dark:bg-zinc-800">
+    <body class="min-h-screen bg-zinc-50 dark:bg-zinc-900">
         <flux:sidebar sticky collapsible="mobile" class="border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
             <flux:sidebar.header>
                 <x-app-logo :sidebar="true" href="{{ route('dashboard') }}" wire:navigate />
@@ -71,6 +71,15 @@
                             </div>
                         </div>
                     </flux:menu.radio.group>
+
+                    <flux:menu.separator />
+
+                    <div class="px-2 py-1.5">
+                        <flux:text class="mb-1.5 block text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                            {{ __('Appearance') }}
+                        </flux:text>
+                        <x-appearance-switcher :labels="false" class="w-full" />
+                    </div>
 
                     <flux:menu.separator />
 

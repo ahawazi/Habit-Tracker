@@ -336,7 +336,7 @@ new class extends Component {
                             />
                             <span
                                 aria-hidden="true"
-                                class="flex h-8 items-center justify-center rounded-lg border border-zinc-200 bg-white text-xs font-medium text-zinc-700 tabular-nums transition peer-checked:border-zinc-900 peer-checked:bg-zinc-900 peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-zinc-900 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 dark:border-white/10 dark:bg-white/5 dark:text-zinc-200 dark:peer-checked:border-white dark:peer-checked:bg-white dark:peer-checked:text-zinc-900 dark:peer-focus-visible:ring-white"
+                                class="flex h-8 items-center justify-center rounded-lg border border-zinc-200 bg-white text-xs font-medium text-zinc-700 tabular-nums transition peer-checked:border-accent peer-checked:bg-accent peer-checked:text-accent-foreground peer-focus-visible:ring-2 peer-focus-visible:ring-accent peer-disabled:cursor-not-allowed peer-disabled:opacity-50 dark:border-white/10 dark:bg-white/5 dark:text-zinc-200"
                             >
                                 {{ $score }}
                             </span>
